@@ -30,6 +30,7 @@
      console.log("Activity Result", activity.result);
      console.log("Activity Env Status", activity.payload.environment.status);
      console.log(githubToken)
+     console.log(getEnvironmentVariables()["GITHUB_AUTH"])
     //  console.log(variables())
      console.log("Github token length", githubToken.length);
      throw new Error("Fatal Error");
@@ -148,9 +149,21 @@
   */
  function variables() {
    var vars = {};
-   activity.payload.deployment.variables.forEach(function (variable) {
+   activity.payload.deployment.webapps.directus.variables.forEach(function (variable) {
      vars[variable.name] = variable.value;
    });
  
    return vars;
  }
+
+ function getEnvironmentVariables() {
+    return activity.payload.deployment.variables.reduce(
+      (vars, { name, value }) => ({
+        ...vars,
+        [name]: value,
+      }),
+      {}
+    );
+  }
+
+
