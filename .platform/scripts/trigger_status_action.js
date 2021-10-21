@@ -18,7 +18,7 @@
      throw new Error("No deployment payload");
    }
    // get any variables necessary
-   var githubToken = variables()["GITHUB_AUTH"];
+   var githubToken = variables()["env:GITHUB_AUTH"];
  
    // verify the run was successful and environment is active
    if (
