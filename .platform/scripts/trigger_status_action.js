@@ -30,7 +30,7 @@
      console.log("Activity Result", activity.result);
      console.log("Activity Env Status", activity.payload.environment.status);
      console.log(githubToken)
-     console.log(variables())
+    //  console.log(variables())
      console.log("Github token length", githubToken.length);
      throw new Error("Fatal Error");
    }
