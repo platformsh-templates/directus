@@ -18,7 +18,7 @@
      throw new Error("No deployment payload");
    }
    // get any variables necessary
-   var githubToken = variables()["env:GITHUB_AUTH"];
+   var githubToken = variables()["GITHUB_AUTH"];
  
    // verify the run was successful and environment is active
    if (
@@ -29,6 +29,8 @@
      console.log("A fatal error has occurred");
      console.log("Activity Result", activity.result);
      console.log("Activity Env Status", activity.payload.environment.status);
+     console.log(githubToken)
+     console.log(variables())
      console.log("Github token length", githubToken.length);
      throw new Error("Fatal Error");
    }
