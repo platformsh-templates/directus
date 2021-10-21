@@ -10,7 +10,7 @@ jobs:
     - name: Audit live URL
       uses: jakejarvis/lighthouse-action@master
       with:
-        url: 'https://jarv.is/'
+        url: 'https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/'
     - name: Upload results as an artifact
       uses: actions/upload-artifact@master
       with:
