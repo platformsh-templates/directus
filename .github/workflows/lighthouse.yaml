@@ -1,8 +1,15 @@
 name: Audit live site
 on:
-  push:
-    branches-ignore:
-      - master
+  workflow_dispatch:
+    inputs:
+      baseUrl:
+        description: 'Testing Domain'
+        required: true
+        default: 'https://platform.sh/'
+      title:
+        description: 'Merge Comment'
+        required: true
+        default: 'Running Cypress Tests'
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -10,7 +17,7 @@ jobs:
     - name: Audit live URL
       uses: jakejarvis/lighthouse-action@master
       with:
-        url: 'https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/'
+        url: ${{ github.event.inputs.baseUrl }}
     - name: Upload results as an artifact
       uses: actions/upload-artifact@master
       with:
