@@ -149,7 +149,7 @@
   */
  function variables() {
    var vars = {};
-   activity.payload.deployment.webapps.directus.variables.forEach(function (variable) {
+   activity.payload.deployment.variables.forEach(function (variable) {
      vars[variable.name] = variable.value;
    });
  
