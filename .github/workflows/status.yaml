@@ -1,0 +1,15 @@
+---
+name: Status
+on:
+  push:
+    branches-ignore:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check http status code of production site
+      uses: lakuapik/gh-actions-http-status@v1
+      with:
+        sites: '["https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/", "https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/items"]'
+        expected: '[302, 404]'
