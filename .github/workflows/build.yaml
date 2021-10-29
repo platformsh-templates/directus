@@ -19,3 +19,6 @@ jobs:
                   node-version: ${{ matrix.nodejs }}
             - run: npm prune --userconfig .npmrc && npm install --userconfig .npmrc
             - run: npm run argon2-rebuild
+            - run: |
+                echo "$GITHUB.REPOSITORY"
+                echo "$GITHUB_SHA"
