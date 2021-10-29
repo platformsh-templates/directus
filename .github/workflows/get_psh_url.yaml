@@ -8,8 +8,9 @@ on:
 jobs:
     build:
         name: 'Retrieve Environment URL'
+        uses: sergeysova/jq-action@v2
         runs-on: ubuntu-latest
         steps: 
             - uses: actions/checkout@v2
             - run: |
-                curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA
+                curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state'
