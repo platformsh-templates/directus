@@ -20,5 +20,4 @@ jobs:
             - run: npm prune --userconfig .npmrc && npm install --userconfig .npmrc
             - run: npm run argon2-rebuild
             - run: |
-                echo "$GITHUB.REPOSITORY"
-                echo "$GITHUB_SHA"
+                curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA
