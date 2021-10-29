@@ -12,5 +12,6 @@ jobs:
         steps: 
             - uses: sergeysova/jq-action@v2
             - uses: actions/checkout@v2
+            - if: ${{ success() }}
             - run: |
                 curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state'
