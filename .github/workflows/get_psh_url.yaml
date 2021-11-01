@@ -48,7 +48,7 @@ jobs:
               uses: lakuapik/gh-actions-http-status@v1
               with:
                 sites: '["${{ needs.build.outputs.env_url }}admin/login"]'
-                expected: '[200]'
+                expected: '[301]'
             - name: 'Homepage should redirect to admin'
               uses: lakuapik/gh-actions-http-status@v1
               with:
@@ -72,8 +72,9 @@ jobs:
               id: report
               run: |
                   REPORT=$(ls report | grep \.json$)
+                  REPORT_DATA=$(cat $REPORT)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  echo "::set-output name=json::$REPORT"
+                  echo "::set-output name=json::$REPORT_DATA"
             - name: Performance test
               run: |
                   REPORT=${{ steps.report.outputs.json }} 
