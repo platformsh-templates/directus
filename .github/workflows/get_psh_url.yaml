@@ -19,7 +19,6 @@ jobs:
             - name: 'Await deployment'
               id: wait
               run: |
-                echo "$GITHUB_REPOSITORY"
                 COMMIT_STATUS="pending"
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
                   sleep 10
@@ -37,24 +36,17 @@ jobs:
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
-    check:
-        name: 'Check results'
-        runs-on: ubuntu-latest
-        needs: build
-        steps: 
-            - run: |
-                echo "${{ needs.build.outputs.commit_status }}"
-                echo "${{ needs.build.outputs.env_url }}"
     test:
         name: 'Status tests'
         runs-on: ubuntu-latest
         needs: build
         steps:
             - name: 'Homepage should deploy successfully'
+              if: needs.build.outputs.env_url == "success"
               uses: lakuapik/gh-actions-http-status@v1
               with:
                 sites: '["${{ needs.build.outputs.env_url }}"]'
-                expected: '[302]'
+                expected: '[301]'
             - name: 'No items should be defined'
               uses: lakuapik/gh-actions-http-status@v1
               with:
@@ -68,11 +60,10 @@ jobs:
             - name: Audit live URL
               uses: jakejarvis/lighthouse-action@master
               with:
-                entryPoint: "https://docs.platform.sh"
+                url: ${{ needs.build.outputs.env_url }}
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
                 name: report
                 path: './report'
             
-# url: ${{ needs.build.outputs.env_url }}
