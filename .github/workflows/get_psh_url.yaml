@@ -47,7 +47,7 @@ jobs:
             - name: 'Login page should deploy successfully'
               uses: lakuapik/gh-actions-http-status@v1
               with:
-                sites: '["${{ needs.build.outputs.env_url }}/admin"]'
+                sites: '["${{ needs.build.outputs.env_url }}admin"]'
                 expected: '[200]'
             - name: 'Homepage should redirect to admin'
               uses: lakuapik/gh-actions-http-status@v1
@@ -68,10 +68,32 @@ jobs:
               uses: jakejarvis/lighthouse-action@master
               with:
                 url: ${{ needs.build.outputs.env_url }}
-            - name: View results
+            - name: Get report file
+              id: report
               run: |
-                  echo "$OUTPUT_FILENAME"
-                  ls -a report
+                  REPORT=$(ls report | grep \.json$)
+                  echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+                  echo "::set-output name=json::$REPORT"
+            - name: Performance test
+              run: |
+                  REPORT=${{ steps.report.outputs.json }} 
+                  SCORE=$(cat $REPORT | jq -r '.categories.performance.score')
+                  echo $SCORE
+            - name: Accessibility test
+              run: |
+                  REPORT=${{ steps.report.outputs.json }} 
+                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
+                  echo $SCORE
+            - name: Best Practices test
+              run: |
+                  REPORT=${{ steps.report.outputs.json }} 
+                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
+                  echo $SCORE
+            - name: SEO test
+              run: |
+                  REPORT=${{ steps.report.outputs.json }} 
+                  SCORE=$(cat $REPORT | jq -r '.categories.seo.score')
+                  echo $SCORE
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
