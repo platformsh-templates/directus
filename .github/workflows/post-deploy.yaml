@@ -69,11 +69,9 @@ jobs:
             - name: Pass report data
               id: report
               run: |
-                  REPORT=$(ls report | grep \.json$)
-                  export REPORT_DATA=$(cat report/$REPORT)
+                  export REPORT=$(ls report | grep \.json$)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  echo "::set-output name=report_data::$REPORT_DATA"
-                  echo $REPORT_DATA | jq -r '.categories.performance.score'
+                  echo "::set-output name=report_data::$REPORT"
     audit-test:
         runs-on: ubuntu-latest
         name: 'Lighthouse Tests'
@@ -81,23 +79,23 @@ jobs:
         steps:                
             - name: Performance test
               run: |
-                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.performance.score')
+                  REPORT=${{ needs.audit.outputs.audit_data }}
+                  SCORE=$(cat $REPORT | jq -r '.categories.performance.score')
                   echo $SCORE
             - name: Accessibility test
               run: |
-                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
+                  REPORT=${{ needs.audit.outputs.audit_data }}
+                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
                   echo $SCORE
             - name: Best Practices test
               run: |
-                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(echo $REPORT_DATA | jq -r '.categories."best-practices".score')
+                  REPORT=${{ needs.audit.outputs.audit_data }}
+                  SCORE=$(cat $REPORT | jq -r '.categories."best-practices".score')
                   echo $SCORE
             - name: SEO test
               run: |
-                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.seo.score')
+                  REPORT=${{ needs.audit.outputs.audit_data }}
+                  SCORE=$(cat $REPORT | jq -r '.categories.seo.score')
                   if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
                       echo "Threshold Failed. Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                       exit 1
