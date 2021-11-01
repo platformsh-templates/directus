@@ -3,6 +3,10 @@ name: directus
 # type (required):
 # The `type` key defines the base container image that will be used to run the application. 
 type: nodejs:12
+
+variables:
+    env:
+        TEMPLATE_PROFILE: directus
 # ######################################################################################################################
 #  
 # BUILD AND DEPLOY
@@ -153,3 +157,18 @@ mounts:
     'uploads':
         source: local
         source_path: uploads
+
+# Auto-update source operation
+source:
+    operations:
+        platform_update_dependencies:
+            command: .template/operation.update_template.sh
+
+timezone: "Europe/Paris" # Change this to your timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+# Auto-update cron job
+crons:
+    update:
+        #spec: '0 3 * * *' # update in the middle of the night
+        spec: '* 3 * * *' # for testing
+        cmd: .template/crons.update.sh
