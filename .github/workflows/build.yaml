@@ -17,5 +17,5 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.nodejs }}
-            - run: npm prune --userconfig .npmrc && npm install --userconfig .npmrc
+            - run: npm install
             - run: npm run argon2-rebuild
