@@ -53,7 +53,7 @@ jobs:
               uses: lakuapik/gh-actions-http-status@v1
               with:
                 sites: '["${{ needs.build.outputs.env_url }}"]'
-                expected: '[404]'
+                expected: '[301]'
     audit:
         name: 'Lighthouse'
         runs-on: ubuntu-latest
@@ -63,6 +63,9 @@ jobs:
               uses: jakejarvis/lighthouse-action@master
               with:
                 url: ${{ needs.build.outputs.env_url }}
+            - name: View results
+              run: |
+                  ls -a
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
