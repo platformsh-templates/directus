@@ -11,14 +11,13 @@ jobs:
         name: 'Retrieve Environment URL'
         runs-on: ubuntu-latest
         steps: 
-            - name: Get hooks
-              run: |
-                curl --request GET \
-                  --url 'https://api.github.com/repos/platformsh-templates/directus/hooks' \
-                  --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             - uses: actions/checkout@v2
             - name: Get the current status
               if: ${{ success() }}
               run: |
                 echo "$GITHUB_SHA"
-                curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state'
+                COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
+                  sleep 10
+                  COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                done
