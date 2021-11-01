@@ -2,10 +2,7 @@
 # Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
 name: Post-deployment tests
 
-on:
-  push:
-    branches-ignore:
-      - master
+on: push
 
 jobs:
     build:
@@ -36,9 +33,7 @@ jobs:
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
-    # Need conditionals so this only runs on successful deployments
     # Activity script: integration target_url should be deployed site on success, but shareable activity on failure.
-    # Needs to run on all pushes, don't ignore master
     test:
         name: 'Status tests'
         runs-on: ubuntu-latest
@@ -50,14 +45,11 @@ jobs:
                 sites: '["${{ needs.build.outputs.env_url }}"]'
                 expected: '[301]'
     audit:
-        name: 'Lighthouse'
+        name: 'Lighthouse Audit'
         runs-on: ubuntu-latest
         needs: build
-        env:
-            ACC_MIN: 0.80
-            BPR_MIN: 0.90
-            PRF_MIN: 0.90
-            SEO_MIN: 0.85
+        outputs:
+            audit_data: ${{ steps.report.outputs.report_data }}
         steps:
             - name: Audit live URL
               uses: jakejarvis/lighthouse-action@master
@@ -68,27 +60,42 @@ jobs:
               with:
                 name: report
                 path: './report'
-            - name: Get report file
+            - name: Pass report data
+              id: report
               run: |
                   REPORT=$(ls report | grep \.json$)
                   export REPORT_DATA=$(cat report/$REPORT)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  echo "::set-env name=REPORT_DATA::$REPORT_DATA"
+                  echo "::set-output name=report_data::$REPORT_DATA"
+    audit-test:
+        runs-on: ubuntu-latest
+        needs: audit
+        env:
+            ACC_MIN: 0.80
+            BPR_MIN: 0.90
+            PRF_MIN: 0.90
+            SEO_MIN: 0.85
+        steps:                
             - name: Performance test
               run: |
+                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
                   SCORE=$(echo $REPORT_DATA | jq -r '.categories.performance.score')
                   echo $SCORE
             - name: Accessibility test
               run: |
+                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
                   SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
                   echo $SCORE
             - name: Best Practices test
               run: |
+                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
                   SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
                   echo $SCORE
             - name: SEO test
               run: |
+                  REPORT_DATA=${{ needs.audit.outputs.audit_data }}
                   SCORE=$(echo $REPORT_DATA | jq -r '.categories.seo.score')
                   if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed. Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                       exit 1
                   fi
