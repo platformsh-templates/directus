@@ -65,7 +65,8 @@ jobs:
                 url: ${{ needs.build.outputs.env_url }}
             - name: View results
               run: |
-                  ls -a
+                  echo "$OUTPUT_FILENAME"
+                  ls -a report
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
