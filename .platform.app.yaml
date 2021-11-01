@@ -57,7 +57,7 @@ hooks:
             export ADMIN_EMAIL='admin@example.com'
             export ADMIN_PASSWORD='password'
             
-            npx directus bootstrap
+            npxgrt7 directus bootstrap
 
             # Create file that indicates first deploy and installation has been completed.
             touch var/platformsh.installed
