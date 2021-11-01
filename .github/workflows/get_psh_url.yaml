@@ -62,38 +62,33 @@ jobs:
             - name: Audit live URL
               uses: jakejarvis/lighthouse-action@master
               with:
-                url: ${{ needs.build.outputs.env_url }}
+                url: ${{ needs.build.outputs.env_url }}admin
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
                 name: report
                 path: './report'
             - name: Get report file
-              id: report
               run: |
                   REPORT=$(ls report | grep \.json$)
-                  REPORT_DATA=$(cat report/$REPORT)
+                  export REPORT_DATA=$(cat report/$REPORT)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  echo "::set-output name=json::$REPORT_DATA"
+                  echo "::set-env name=REPORT_DATA::$REPORT_DATA"
             - name: Performance test
               run: |
-                  REPORT=${{ steps.report.outputs.json }} 
-                  SCORE=$(cat $REPORT | jq -r '.categories.performance.score')
+                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.performance.score')
                   echo $SCORE
             - name: Accessibility test
               run: |
-                  REPORT=${{ steps.report.outputs.json }} 
-                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
+                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
                   echo $SCORE
             - name: Best Practices test
               run: |
-                  REPORT=${{ steps.report.outputs.json }} 
-                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
+                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
                   echo $SCORE
             - name: SEO test
               run: |
-                  REPORT=${{ steps.report.outputs.json }} 
-                  SCORE=$(cat $REPORT | jq -r '.categories.seo.score')
+                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.seo.score')
                   if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
                       exit 1
                   fi
