@@ -1,4 +1,5 @@
 ---
+# Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
 name: Get Platform.sh URL
 on:
   push:
@@ -10,9 +11,21 @@ jobs:
         name: 'Retrieve Environment URL'
         runs-on: ubuntu-latest
         steps: 
+            - name: Create PENDING status
+              if: ${{ github.event.state == 'pending' }}
+              run: >-
+                curl --location --request POST
+                'https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.commit.sha }}'
+                --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
+                --header 'Content-Type: application/json'
+                --data-raw '{
+                  "state": "pending",
+                  "target_url": "https://github.com/${{ github.repository }}/actions?query=workflow%253A%22${{ github.workflow }}",
+                  "context": "${{ github.workflow }}",
+                  "descrption": "Waiting for deployment."
+                }'
             - uses: actions/checkout@v2
-            - uses: sergeysova/jq-action@v2
-            - name: 'find that thang'
+            - name: Get the current status
               if: ${{ success() }}
               run: |
                 echo "$GITHUB_SHA"
