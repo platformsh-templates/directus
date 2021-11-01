@@ -13,9 +13,9 @@ jobs:
         steps: 
             - name: Get hooks
               run: |
-                curl -X GET https://api.github.com/repos/platformsh-templates/directus/hooks 
-                --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
-                --header 'Content-Type: application/json'
+                curl --request GET \
+                  --url 'https://api.github.com/repos/platformsh-templates/directus/hooks' \
+                  --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             - uses: actions/checkout@v2
             - name: Get the current status
               if: ${{ success() }}
