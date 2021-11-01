@@ -4,6 +4,12 @@ name: Post-deployment tests
 
 on: push
 
+env:
+    ACC_MIN: 0.80
+    BPR_MIN: 0.90
+    PRF_MIN: 0.90
+    SEO_MIN: 0.85
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -67,14 +73,11 @@ jobs:
                   export REPORT_DATA=$(cat report/$REPORT)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   echo "::set-output name=report_data::$REPORT_DATA"
+                  echo $REPORT_DATA | jq -r '.categories.performance.score'
     audit-test:
         runs-on: ubuntu-latest
+        name: 'Lighthouse Tests'
         needs: audit
-        env:
-            ACC_MIN: 0.80
-            BPR_MIN: 0.90
-            PRF_MIN: 0.90
-            SEO_MIN: 0.85
         steps:                
             - name: Performance test
               run: |
@@ -89,7 +92,7 @@ jobs:
             - name: Best Practices test
               run: |
                   REPORT_DATA=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(echo $REPORT_DATA | jq -r '.categories.accessibility.score')
+                  SCORE=$(echo $REPORT_DATA | jq -r '.categories."best-practices".score')
                   echo $SCORE
             - name: SEO test
               run: |
