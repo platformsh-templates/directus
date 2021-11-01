@@ -10,11 +10,14 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        name: 'Retrieving environment URL'
+        name: 'Get environment URL'
+        outputs:
+            commit_status: ${{ steps.status.outputs.env_status }}
+            env_url: ${{ steps.url.outputs.env_url }}  
         steps: 
             - uses: actions/checkout@v2
             - name: 'Await deployment'
-              id: get_environment
+              id: wait
               run: |
                 COMMIT_STATUS="pending"
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
@@ -22,11 +25,17 @@ jobs:
                   COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                   echo "Waiting for Platform.sh environment to deploy ...."
                 done
-                ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "Environment deployed. Finished."
-        outputs:
-            commit_status: $COMMIT_STATUS
-            env_url: $ENV_URL
+            - name: 'Pass status'
+              id: status
+              run: |
+                COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                echo "::set-output name=env_status::$COMMIT_STATUS"
+            - name: 'Pass URL'
+              id: url
+              run: |
+                ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                echo "::set-output name=env_url::$ENV_URL"
     check:
         name: 'Check results'
         runs-on: ubuntu-latest
