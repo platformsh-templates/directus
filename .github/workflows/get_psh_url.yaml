@@ -44,35 +44,35 @@ jobs:
         runs-on: ubuntu-latest
         needs: build
         steps:
-            - name: 'Login page should deploy successfully'
-              uses: lakuapik/gh-actions-http-status@v1
-              with:
-                sites: '["${{ needs.build.outputs.env_url }}admin/login"]'
-                expected: '[301]'
-            - name: 'Homepage should redirect to admin'
+            - name: 'Application should deploy successfully'
               uses: lakuapik/gh-actions-http-status@v1
               with:
                 sites: '["${{ needs.build.outputs.env_url }}"]'
                 expected: '[301]'
-            - name: 'No items should be defined'
-              uses: lakuapik/gh-actions-http-status@v1
-              with:
-                sites: '["${{ needs.build.outputs.env_url }}items"]'
-                expected: '[404]'
     audit:
         name: 'Lighthouse'
         runs-on: ubuntu-latest
         needs: build
+        env:
+            ACC_MIN: 0.80
+            BPR_MIN: 0.90
+            PRF_MIN: 0.90
+            SEO_MIN: 0.85
         steps:
             - name: Audit live URL
               uses: jakejarvis/lighthouse-action@master
               with:
                 url: ${{ needs.build.outputs.env_url }}
+            - name: Upload results as an artifact
+              uses: actions/upload-artifact@master
+              with:
+                name: report
+                path: './report'
             - name: Get report file
               id: report
               run: |
                   REPORT=$(ls report | grep \.json$)
-                  REPORT_DATA=$(cat $REPORT)
+                  REPORT_DATA=$(cat report/$REPORT)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   echo "::set-output name=json::$REPORT_DATA"
             - name: Performance test
@@ -94,10 +94,6 @@ jobs:
               run: |
                   REPORT=${{ steps.report.outputs.json }} 
                   SCORE=$(cat $REPORT | jq -r '.categories.seo.score')
-                  echo $SCORE
-            - name: Upload results as an artifact
-              uses: actions/upload-artifact@master
-              with:
-                name: report
-                path: './report'
-            
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
+                      exit 1
+                  fi
