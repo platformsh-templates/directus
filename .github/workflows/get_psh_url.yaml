@@ -23,19 +23,19 @@ jobs:
                 COMMIT_STATUS="pending"
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
                   sleep 10
-                  COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                  COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                   echo "Waiting for Platform.sh environment to deploy ...."
                 done
                 echo "Environment deployed. Finished."
             - name: 'Pass status'
               id: status
               run: |
-                COMMIT_STATUS=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                 echo "::set-output name=env_status::$COMMIT_STATUS"
             - name: 'Pass URL'
               id: url
               run: |
-                ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
     check:
         name: 'Check results'
@@ -53,12 +53,12 @@ jobs:
             - name: 'Homepage should deploy successfully'
               uses: lakuapik/gh-actions-http-status@v1
               with:
-                sites: '["{{ needs.build.outputs.env_url }}"]'
+                sites: '["${{ needs.build.outputs.env_url }}"]'
                 expected: '[302]'
             - name: 'No items should be defined'
               uses: lakuapik/gh-actions-http-status@v1
               with:
-                sites: '["{{ needs.build.outputs.env_url }}"]'
+                sites: '["${{ needs.build.outputs.env_url }}"]'
                 expected: '[404]'
     audit:
         name: 'Lighthouse'
@@ -68,10 +68,11 @@ jobs:
             - name: Audit live URL
               uses: jakejarvis/lighthouse-action@master
               with:
-                url: ${{ needs.build.outputs.env_url }}
+                entryPoint: "https://docs.platform.sh"
             - name: Upload results as an artifact
               uses: actions/upload-artifact@master
               with:
                 name: report
                 path: './report'
             
+# url: ${{ needs.build.outputs.env_url }}
