@@ -36,13 +36,15 @@ jobs:
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
+    # Need conditionals so this only runs on successful deployments
+    # Activity script: integration target_url should be deployed site on success, but shareable activity on failure.
+    # Needs to run on all pushes, don't ignore master
     test:
         name: 'Status tests'
         runs-on: ubuntu-latest
         needs: build
         steps:
             - name: 'Homepage should deploy successfully'
-              if: needs.build.outputs.env_url == "success"
               uses: lakuapik/gh-actions-http-status@v1
               with:
                 sites: '["${{ needs.build.outputs.env_url }}"]'
