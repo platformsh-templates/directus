@@ -10,9 +10,10 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        name: 'Retrieving environment URL'
         steps: 
             - uses: actions/checkout@v2
-            - name: 'Retrieving environment URL'
+            - name: 'Await deployment'
               id: get_environment
               run: |
                 COMMIT_STATUS="pending"
@@ -22,7 +23,7 @@ jobs:
                   echo "Waiting for Platform.sh environment to deploy ...."
                 done
                 ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
-                echo "Environment deployed. Finished.
+                echo "Environment deployed. Finished."
         outputs:
             commit_status: $COMMIT_STATUS
             env_url: $ENV_URL
@@ -34,13 +35,18 @@ jobs:
             - run: |
                 echo "${{ needs.build.outputs.commit_status }}"
                 echo "${{ needs.build.outputs.env_url }}"
-        
 #     test:
 #         name: 'Status tests'
 #         runs-on: ubuntu-latest
 #         steps:
-#             - uses: lakuapik/gh-actions-http-status@v1
+#             - name: 'Homepage should deploy successfully'
+#               uses: lakuapik/gh-actions-http-status@v1
 #               with:
-#                 sites: '["https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/", "https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/items"]'
-#                 expected: '[302, 404]'
+#                 sites: '["https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/"]'
+#                 expected: '[302]'
+#             - name: 'No items should be defined'
+#               uses: lakuapik/gh-actions-http-status@v1
+#               with:
+#                 sites: '["https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/items"]'
+#                 expected: '[404]'
             
