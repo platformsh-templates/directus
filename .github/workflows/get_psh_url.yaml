@@ -1,6 +1,6 @@
 ---
 # Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
-name: Get Platform.sh URL
+name: Post-deployment tests
 on:
   push:
     branches-ignore:
@@ -12,8 +12,8 @@ jobs:
         runs-on: ubuntu-latest
         steps: 
             - uses: actions/checkout@v2
-            - name: Get the current status
-              if: ${{ success() }}
+            - if: ${{ success() }}
+              id: get_environment
               run: |
                 COMMIT_STATUS="pending"
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
@@ -22,5 +22,24 @@ jobs:
                   echo "Waiting for Platform.sh environment to deploy ...."
                 done
                 ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
-                echo "- Status: $COMMIT_STATUS"
-                echo "- Environment: $ENV_URL"
+        outputs:
+            commit_status: $COMMIT_STATUS
+            env_url: $ENV_URL
+    check:
+        name: 'Check results'
+        runs-on: ubuntu-latest
+        needs: build
+        steps: 
+            - run: |
+                echo "${{ needs.build.outputs.commit_status }}
+                echo "${{ needs.build.outputs.env_url }}
+        
+#     test:
+#         name: 'Status tests'
+#         runs-on: ubuntu-latest
+#         steps:
+#             - uses: lakuapik/gh-actions-http-status@v1
+#               with:
+#                 sites: '["https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/", "https://pr-8-ojug23i-o3fc5w4n5iumy.eu-3.platformsh.site/items"]'
+#                 expected: '[302, 404]'
+            
