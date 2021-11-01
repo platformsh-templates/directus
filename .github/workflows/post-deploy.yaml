@@ -72,6 +72,14 @@ jobs:
                   export REPORT=$(ls report | grep \.json$)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   echo "::set-output name=report_data::$REPORT"
+            - name: SEO test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories.seo.score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed. Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  fi
     audit-test:
         runs-on: ubuntu-latest
         name: 'Lighthouse Tests'
