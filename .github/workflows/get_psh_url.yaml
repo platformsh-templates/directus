@@ -1,6 +1,7 @@
 ---
 # Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
 name: Post-deployment tests
+
 on:
   push:
     branches-ignore:
@@ -8,11 +9,10 @@ on:
 
 jobs:
     build:
-        name: 'Retrieve Environment URL'
         runs-on: ubuntu-latest
         steps: 
             - uses: actions/checkout@v2
-            - if: ${{ success() }}
+            - name: 'Retrieving environment URL'
               id: get_environment
               run: |
                 COMMIT_STATUS="pending"
@@ -22,6 +22,7 @@ jobs:
                   echo "Waiting for Platform.sh environment to deploy ...."
                 done
                 ENV_URL=$(curl -s https://api.github.com/repos/platformsh-templates/directus/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                echo "Environment deployed. Finished.
         outputs:
             commit_status: $COMMIT_STATUS
             env_url: $ENV_URL
@@ -31,8 +32,8 @@ jobs:
         needs: build
         steps: 
             - run: |
-                echo "${{ needs.build.outputs.commit_status }}
-                echo "${{ needs.build.outputs.env_url }}
+                echo "${{ needs.build.outputs.commit_status }}"
+                echo "${{ needs.build.outputs.env_url }}"
         
 #     test:
 #         name: 'Status tests'
