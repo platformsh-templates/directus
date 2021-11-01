@@ -1,9 +1,10 @@
 ---
 name: Status
 on:
-  push:
-    branches-ignore:
-      - master
+  workflow_run:
+    workflows: ["Get Platform.sh URL"]
+    types: 
+      - completed
 jobs:
   build:
     runs-on: ubuntu-latest
