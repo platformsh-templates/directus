@@ -25,7 +25,7 @@
     <a href="#about-platformsh"><strong>About Platform.sh</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
     <a href="https://community.platform.sh"><strong>Join our community</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
     <a href="https://docs.platform.sh"><strong>Documentation</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-    <a href="https://platform.sh/blog"><strong>Blog</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    <a href="https://platform.sh/blog"><strong>Blog</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<br />
     <a href="https://github.com/platformsh-templates/directus/issues"><strong>Report a bug</strong></a>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
     <a href="https://github.com/platformsh-templates/directus/issues"><strong>Request a feature</strong></a>
 </p>
