@@ -27,6 +27,10 @@ jobs:
                   sleep 10
                   COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                   echo "Waiting for Platform.sh environment to deploy ...."
+                  echo "  - $GITHUB_SHA"
+                  echo "  - $COMMIT_STATUS"
+                  ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                  echo "  - $ENV_URL"
                 done
                 echo "Environment deployed. Finished."
             - name: 'Pass status'
