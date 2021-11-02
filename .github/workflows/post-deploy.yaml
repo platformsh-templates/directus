@@ -31,9 +31,8 @@ jobs:
               id: wait
               run: |
                 COMMIT_STATUS="pending"
-                ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 STATUS_INIT=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA)
-                echo $STATUS_INIT
+                echo $STATUS_INIT | jq '.[] | length'
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
                   sleep 10
                   COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
