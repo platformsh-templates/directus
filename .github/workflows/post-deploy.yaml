@@ -97,7 +97,10 @@ jobs:
                   REPORT=$(ls report | grep \.json$)
                   SCORE=$(cat report/$REPORT | jq -r '.categories.seo.score')
                   if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
-                      echo "Threshold Failed. Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.SEO_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                       exit 1
                   fi
     # audit-test:
