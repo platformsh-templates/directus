@@ -8,10 +8,10 @@ on:
       - 'master'
 
 env:
-    ACC_MIN: 0.80
-    BPR_MIN: 0.90
-    PRF_MIN: 0.90
-    SEO_MIN: 0.75
+    ACC_MIN: 0.50
+    BPR_MIN: 0.50
+    PRF_MIN: 0.50
+    SEO_MIN: 0.50
 
 jobs:
     build:
