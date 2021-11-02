@@ -2,9 +2,10 @@
 # Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
 name: Post-deployment tests
 
-on:
-  pull_request_target:
-    types: [opened, synchronize, edited]
+on: push
+# on:
+#   pull_request_target:
+#     types: [opened, synchronize, edited]
 
 env:
     ACC_MIN: 0.80
@@ -20,7 +21,32 @@ jobs:
             commit_status: ${{ steps.status.outputs.env_status }}
             env_url: ${{ steps.url.outputs.env_url }}  
         steps: 
-            - uses: actions/checkout@v2
+          - uses: actions/checkout@v2
+          - name: Get PR number
+            uses: octokit/graphql-action@v2.0.0
+            id: get_pr_number
+            with:
+              query: |
+                query getPRMergeSha($sha: String, $repo: String!, $owner: String!) {
+                  repository(name: $repo, owner: $owner) {
+                    commit: object(expression: $sha) {
+                      ... on Commit {
+                        associatedPullRequests(first:1) {
+                          edges {
+                            node {
+                              number
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              owner: ${{ github.event.repository.owner.login }}
+              repo: ${{ github.event.repository.name }}
+              sha: ${{ github.event.commit.sha }}
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - name: 'Await deployment'
               id: wait
               run: |
