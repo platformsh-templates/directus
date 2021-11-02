@@ -27,6 +27,7 @@ jobs:
               id: wait
               run: |
                 COMMIT_STATUS="pending"
+                sleep 10
                 STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
                 if [ $STATUSES == 0 ]; then
                     echo "Not on a Platform.sh integrated environment. Skipping."
@@ -57,7 +58,6 @@ jobs:
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
-    # Activity script: integration target_url should be deployed site on success, but shareable activity on failure.
     test:
         name: 'Status tests'
         runs-on: ubuntu-latest
