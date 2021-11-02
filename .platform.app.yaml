@@ -47,9 +47,6 @@ hooks:
         set -e
         # Rebuild argon2 to fix upstream issue (See https://docs.directus.io/guides/installation/plesk/#bootstrap-directus).
         npm run argon2-rebuild
-
-        # Template management
-        .template/install_cli.sh
     # deploy:
     # The `deploy` hook is run after the application container has been started (See `web.start.commands`), but before
     # it has started accepting requests. At this stage, the application container has access to other services in the 
