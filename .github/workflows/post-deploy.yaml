@@ -124,22 +124,23 @@ jobs:
                       echo "  - Threshold: ${{ env.BPR_MIN }}"
                       echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   fi
-            - name: Performance test
-              run: |
-                  REPORT=$(ls report | grep \.json$)
-                  SCORE=$(cat report/$REPORT | jq -r '.categories.performance.score')
-                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.PRF_MIN }}" | bc)" ]; then
-                      echo "Threshold Failed:"
-                      echo "  - Score:     $SCORE"
-                      echo "  - Threshold: ${{ env.PRF_MIN }}"
-                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                      exit 1
-                  else
-                      echo "Passed:"
-                      echo "  - Score:     $SCORE"
-                      echo "  - Threshold: ${{ env.PRF_MIN }}"
-                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  fi
+            # Redirects are causing a null measurement here, so pause on this for now.
+            # - name: Performance test
+            #   run: |
+            #       REPORT=$(ls report | grep \.json$)
+            #       SCORE=$(cat report/$REPORT | jq -r '.categories.performance.score')
+            #       if [ 1 -eq "$(echo "${SCORE} < ${{ env.PRF_MIN }}" | bc)" ]; then
+            #           echo "Threshold Failed:"
+            #           echo "  - Score:     $SCORE"
+            #           echo "  - Threshold: ${{ env.PRF_MIN }}"
+            #           echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            #           exit 1
+            #       else
+            #           echo "Passed:"
+            #           echo "  - Score:     $SCORE"
+            #           echo "  - Threshold: ${{ env.PRF_MIN }}"
+            #           echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            #       fi
             - name: SEO test
               run: |
                   REPORT=$(ls report | grep \.json$)
