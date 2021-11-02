@@ -47,6 +47,14 @@ jobs:
                 sha: ${{ github.event.commit.sha }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Extract PR number
+              id: extract_data
+              env:
+                JSON_DATA: ${{ steps.get_pr_number.outputs.data }}
+              run: |
+                PR_NUMBER=$(echo "${JSON_DATA}" | jq '.repository.commit.associatedPullRequests.edges[].node.number')
+                echo $PR_NUMBER
+                echo "::set-output name=pr_number::${PR_NUMBER}"
             - name: 'Await deployment'
               id: wait
               run: |
