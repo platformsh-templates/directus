@@ -15,9 +15,6 @@ hooks:
         set -e
         # Rebuild argon2 to fix upstream issue (See https://docs.directus.io/guides/installation/plesk/#bootstrap-directus).
         npm run argon2-rebuild
-
-        # Template maintenance tasks.
-        .platform-scripts/prepare_updater.sh
     deploy: |
         set -e
         # Installs the database and sets up the initial admin user. Only run on first deploy.
