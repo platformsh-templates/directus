@@ -2,13 +2,16 @@
 # Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
 name: Post-deployment tests
 
-on: push
+on:
+  push:
+    branches-ignore:
+      - 'master'
 
-env:
-    ACC_MIN: 0.80
-    BPR_MIN: 0.90
-    PRF_MIN: 0.90
-    SEO_MIN: 0.85
+# env:
+#     ACC_MIN: 0.80
+#     BPR_MIN: 0.90
+#     PRF_MIN: 0.90
+#     SEO_MIN: 0.85
 
 jobs:
     build:
@@ -23,27 +26,33 @@ jobs:
               id: wait
               run: |
                 COMMIT_STATUS="pending"
-                until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
-                  sleep 10
-                  COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
-                  echo "Waiting for Platform.sh environment to deploy ...."
-                  echo "  - $GITHUB_SHA"
-                  echo "  - $COMMIT_STATUS"
-                  ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
-                  echo "  - $ENV_URL"
-                  echo "  - $GITHUB_REF"
-                  echo "  - $GITHUB_HEAD_REF"
-                  echo "  - $GITHUB_BASE_REF"
-                  echo "  - $GITHUB_API_URL"
-                done
-                echo "Environment deployed. Finished."
+                STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
+                if [ $STATUSES == 0 ]; then
+                    echo "Not on a Platform.sh integrated environment. Skipping."
+                    echo "::set-output name=integration::none"
+                else
+                    until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
+                      sleep 10
+                      ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                      COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                      
+                      echo "Waiting for Platform.sh environment to deploy ...."
+                      echo "  - $GITHUB_SHA"
+                      echo "  - $COMMIT_STATUS"
+                      echo "  - $ENV_URL"
+                    done
+                    echo "Environment deployed. Finished."
+                    echo "::set-output name=integration::platformsh"
+                fi
             - name: 'Pass status'
               id: status
+              if: steps.wait.outputs.integration == 'platformsh'
               run: |
                 COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                 echo "::set-output name=env_status::$COMMIT_STATUS"
             - name: 'Pass URL'
               id: url
+              if: steps.wait.outputs.integration == 'platformsh'
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
