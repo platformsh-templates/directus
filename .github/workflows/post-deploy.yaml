@@ -27,45 +27,13 @@ jobs:
             env_url: ${{ steps.url.outputs.env_url }}  
         steps: 
             - uses: actions/checkout@v2
-            # - name: Get PR number
-            #   uses: octokit/graphql-action@v2.0.0
-            #   id: get_pr_number
-            #   with:
-            #     query: |
-            #       query getPRMergeSha($sha: String, $repo: String!, $owner: String!) {
-            #         repository(name: $repo, owner: $owner) {
-            #           commit: object(expression: $sha) {
-            #             ... on Commit {
-            #               associatedPullRequests(first:1) {
-            #                 edges {
-            #                   node {
-            #                     number
-            #                   }
-            #                 }
-            #               }
-            #             }
-            #           }
-            #         }
-            #       }
-            #     owner: ${{ github.event.repository.owner.login }}
-            #     repo: ${{ github.event.repository.name }}
-            #     sha: ${{ github.event.commit.sha }}
-            #   env:
-            #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            # - name: Extract PR number
-            #   id: extract_data
-            #   env:
-            #     JSON_DATA: ${{ steps.get_pr_number.outputs.data }}
-            #   run: |
-            #     echo $JSON_DATA
-            #     echo "${JSON_DATA}"
-            #     # PR_NUMBER=$(echo "${JSON_DATA}" | jq '.repository.commit.associatedPullRequests.edges[].node.number')
-            #     echo $PR_NUMBER
-            #     echo "::set-output name=pr_number::${PR_NUMBER}"
             - name: 'Await deployment'
               id: wait
               run: |
                 COMMIT_STATUS="pending"
+                ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                STATUS_INIT=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA
+                echo $STATUS_INIT
                 until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
                   sleep 10
                   COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
