@@ -4,10 +4,13 @@ name: directus
 # The `type` key defines the base container image that will be used to run the application. 
 type: nodejs:12
 
+dependencies:
+    python3:
+       pipenv: '*'
+
 variables:
     env:
         TEMPLATE_PROFILE: directus
-        TEMPLATE_UPDATE_BRANCH: updates
 # ######################################################################################################################
 #  
 # BUILD AND DEPLOY
