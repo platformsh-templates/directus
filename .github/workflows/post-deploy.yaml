@@ -27,8 +27,9 @@ jobs:
               run: |
                 COMMIT_STATUS="pending"
                 STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
-                if [ $LENGTH == 0 ]; then
+                if [ $STATUSES == 0 ]; then
                     echo "Not on a Platform.sh integrated environment. Skipping."
+                    echo "::set-output name=integration::none"
                 else
                     until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
                       sleep 10
@@ -41,14 +42,17 @@ jobs:
                       echo "  - $ENV_URL"
                     done
                     echo "Environment deployed. Finished."
+                    echo "::set-output name=integration::platformsh"
                 fi
             - name: 'Pass status'
               id: status
+              if: steps.wait.outputs.integration == 'platformsh'
               run: |
                 COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
                 echo "::set-output name=env_status::$COMMIT_STATUS"
             - name: 'Pass URL'
               id: url
+              if: steps.wait.outputs.integration == 'platformsh'
               run: |
                 ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
                 echo "::set-output name=env_url::$ENV_URL"
