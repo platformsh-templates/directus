@@ -92,6 +92,54 @@ jobs:
                   export REPORT=$(ls report | grep \.json$)
                   echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   echo "::set-output name=report_data::$REPORT"
+            - name: Accessibility test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories.accessibility.score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.ACC_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.ACC_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.ACC_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
+            - name: Best practices test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories."best-practices".score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.BPR_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.BPR_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.BPR_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
+            - name: Performance test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories.performance.score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.PRF_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.PRF_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.PRF_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
             - name: SEO test
               run: |
                   REPORT=$(ls report | grep \.json$)
@@ -107,33 +155,4 @@ jobs:
                       echo "  - Score:     $SCORE"
                       echo "  - Threshold: ${{ env.SEO_MIN }}"
                       echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  fi
-    audit-test:
-        runs-on: ubuntu-latest
-        name: 'Lighthouse Tests'
-        needs: audit
-        if: needs.build.outputs.integration_status == 'platformsh'
-        steps:                
-            - name: Performance test
-              run: |
-                  REPORT=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(cat $REPORT | jq -r '.categories.performance.score')
-                  echo $SCORE
-            - name: Accessibility test
-              run: |
-                  REPORT=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(cat $REPORT | jq -r '.categories.accessibility.score')
-                  echo $SCORE
-            - name: Best Practices test
-              run: |
-                  REPORT=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(cat $REPORT | jq -r '.categories."best-practices".score')
-                  echo $SCORE
-            - name: SEO test
-              run: |
-                  REPORT=${{ needs.audit.outputs.audit_data }}
-                  SCORE=$(cat $REPORT | jq -r '.categories.seo.score')
-                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
-                      echo "Threshold Failed. Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                      exit 1
                   fi
