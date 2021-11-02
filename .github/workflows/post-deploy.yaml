@@ -6,11 +6,11 @@ on:
   pull_request:
     types: [opened, synchronize]
 
-# env:
-#     ACC_MIN: 0.80
-#     BPR_MIN: 0.90
-#     PRF_MIN: 0.90
-#     SEO_MIN: 0.85
+env:
+    ACC_MIN: 0.80
+    BPR_MIN: 0.90
+    PRF_MIN: 0.90
+    SEO_MIN: 0.85
 
 jobs:
     build:
