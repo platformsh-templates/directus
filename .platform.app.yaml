@@ -167,9 +167,9 @@ source:
 
 timezone: "Europe/Paris" # Change this to your timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
-# Auto-update cron job
-crons:
-    update:
-        #spec: '0 3 * * *' # update in the middle of the night
-        spec: '* 3 * * *' # for testing
-        cmd: .template/crons.update.sh
+# # Auto-update cron job
+# crons:
+#     update:
+#         #spec: '0 3 * * *' # update in the middle of the night
+#         spec: '* 3 * * *' # for testing
+#         cmd: .template/crons.update.sh
