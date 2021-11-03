@@ -89,4 +89,5 @@ verify () {
     fi
 }
 
+echo "In the script"
 verify

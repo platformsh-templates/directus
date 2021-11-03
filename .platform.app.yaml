@@ -18,7 +18,8 @@ hooks:
 
         echo "Can I see these?"
         ls -a platform-scripts/template
-
+        .platform-scripts/foo.sh
+        
         # Template maintenance tasks.
         platform-scripts/template/verify_updater.sh
     deploy: |
