@@ -5,13 +5,13 @@ UPDATE_ENVIRONMENT=update
 
 # The GitHub side.
 check_branch_exists () {
-    STATUS=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/branches/$UPDATE_ENVIRONMENT)
+    STATUS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/branches/$UPDATE_ENVIRONMENT)
     echo $STATUS | jq -r '.message'
 }
 
 get_default_branch_sha () {
-    DEFAULT_BRANCH=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE | jq -r '.default_branch')
-    SHA=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/branches/$DEFAULT_BRANCH)
+    DEFAULT_BRANCH=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE | jq -r '.default_branch')
+    SHA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/branches/$DEFAULT_BRANCH)
     echo $SHA | jq -r '.commit.sha'
 }
 
@@ -23,7 +23,7 @@ create_branch () {
                 --arg ref "$UPDATE_BRANCH_REF" \
                 --arg sha "$DEFAULT_BRANCH_SHA" \
                 '{ref: $ref, sha: $sha}' )
-    curl -X POST -H "Authorization: token $TOKEN" -H "Content-Type: application/json" \
+    curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/json" \
         -d "$DATA" \
         https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/git/refs
     sleep 5
@@ -83,7 +83,7 @@ verify () {
                 echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
             else
                 # Verify update environment.
-                verify_updater
+                verify_environments
             fi
         fi
     fi
