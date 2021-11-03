@@ -13,4 +13,4 @@
 # platform project:curl /environments/pr-20/activities | jq -r '.[0].id' gets the activity id
 # PR #
 # 
-# target_url --> https://console.platform.sh/projects/o3fc5w4n5iumy/pr-20/log/fyoscsfbntwu2
+# target_url --> https://console.platform.sh/projects/PROJECTID/pr-XX/log/ACTIVITY_ID
