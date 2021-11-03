@@ -3,6 +3,7 @@
 if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
     echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
 else 
+    # Replace with UPDATE_ENVIRONMENT?
     if [ $PLATFORM_ENVIRONMENT_TYPE = production ]; then
         # Prepare the auto-update tools.
         .platform-scripts/template/prepare_updater.sh
