@@ -58,7 +58,7 @@ mounts:
 source:
     operations:
         platform_update_dependencies:
-            command: .platform-scripts/operation.update_template.sh
+            command: .platform-scripts/template/operation.update_template.sh
 
 timezone: "Europe/Paris" # Change this to your timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
@@ -66,4 +66,4 @@ timezone: "Europe/Paris" # Change this to your timezone https://en.wikipedia.org
 crons:
     update:
         spec: '0 3 * * *' # update in the middle of the night
-        cmd: .platform-scripts/crons.update.sh
+        cmd: .platform-scripts/template/crons.update.sh
