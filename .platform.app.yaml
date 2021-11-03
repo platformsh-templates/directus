@@ -17,7 +17,7 @@ hooks:
         npm run argon2-rebuild
 
         # Template maintenance tasks.
-        .platform-scripts/template/verify_updater.sh
+        bash .platform-scripts/template/verify_updater.sh
     deploy: |
         set -e
         # Installs the database and sets up the initial admin user. Only run on first deploy.

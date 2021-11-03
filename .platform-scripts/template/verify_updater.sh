@@ -70,7 +70,7 @@ verify () {
     if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
         echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
     else 
-        if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
+        if [ "$PLATFORM_ENVIRONMENT_TYPE" = development ]; then
 
             # Prepare the auto-update tools.
             install_update_tools
