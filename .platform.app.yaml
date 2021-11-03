@@ -33,8 +33,6 @@ hooks:
             # Create file that indicates first deploy and installation has been completed.
             touch var/platformsh.installed
         fi; 
-    post_deploy: |
-        set -e
 
 relationships:
     database: "db:postgresql"

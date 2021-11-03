@@ -3,7 +3,7 @@
 if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
     echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
 else 
-    if [ $PLATFORM_ENVIRONMENT_TYPE = production ]; then
+    if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
         # Verify project.
         USERS=$(platform project:curl access | jq -c 'map(select(."_embedded".users[0].email | contains("devrel@internal.platform.sh")))')
         MATCH_USERS=$(echo $USERS | jq -r 'length')
