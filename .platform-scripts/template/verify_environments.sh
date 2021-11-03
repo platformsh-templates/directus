@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 TEMPLATE_NAMESPACE=platformsh-templates
-TEMPLATE_PROFILE=directus
 UPDATE_ENVIRONMENT=update
 
 # The GitHub side.

@@ -5,9 +5,6 @@ if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then
 else 
     # Replace with UPDATE_ENVIRONMENT?
     if [ $PLATFORM_ENVIRONMENT_TYPE = production ]; then
-        # Prepare the auto-update tools.
-        .platform-scripts/template/prepare_updater.sh
-
         # Verify project.
         USERS=$(platform project:curl access | jq -c 'map(select(."_embedded".users[0].email | contains("devrel@internal.platform.sh")))')
         MATCH_USERS=$(echo $USERS | jq -r 'length')
