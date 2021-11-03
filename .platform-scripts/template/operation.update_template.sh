@@ -19,7 +19,7 @@ else
             auto-update $TEMPLATE_PROFILE update
 
             # Track the update.
-            date > last_updated_on
+            date +"%d %B, %Y" > last_updated_on
 
             # Stage and commit updates.
             git add .
