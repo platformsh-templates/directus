@@ -67,9 +67,11 @@ install_update_tools () {
 
 # Main.
 verify () {
+    echo "Verify verify"
     if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
         echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
     else 
+        echo "Cli token not found, or bad catch."
         if [ "$PLATFORM_ENVIRONMENT_TYPE" = development ]; then
 
             # Prepare the auto-update tools.
@@ -85,6 +87,8 @@ verify () {
                 # Verify update environment.
                 verify_environments
             fi
+        else
+            echo "Wrong environment type"
         fi
     fi
 }
