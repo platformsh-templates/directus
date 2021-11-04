@@ -13,7 +13,7 @@ else
             echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
         else
             # Update the template.
-            timeout 1800 auto-update $TEMPLATE_PROFILE trigger_update_dependencies;
+            timeout 1800 auto-update $TEMPLATE_PROFILE trigger_update_dependencies
         fi
     fi;
 fi
