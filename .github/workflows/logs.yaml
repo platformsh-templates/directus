@@ -61,14 +61,13 @@ jobs:
         needs: build
         if: needs.build.outputs.commit_status == 'failure'
         steps:
-            - name: Install Platform.sh CLI
-              run: curl -sS https://platform.sh/cli/installer | php
             - name: 'Retreive logs'
               run: |    
-                  echo "${{ needs.build.outputs.env_url }}"
-                  ENV_URL=http://pr-32-efmpyay-o3fc5w4n5iumy.eu-3.platformsh.site/
+                  # Install Platform.sh CLI
+                  curl -sS https://platform.sh/cli/installer | php
 
-                  IFS='-' read -ra my_array <<< "$ENV_URL"
+                  # Get data.
+                  IFS='-' read -ra my_array <<< "${{ needs.build.outputs.env_url }}"
                   ENVIRONMENT="pr-${my_array[1]}"
                   IFS="." read -ra my_array <<< "${my_array[3]}"
                   PROJECT="${my_array[0]}"
