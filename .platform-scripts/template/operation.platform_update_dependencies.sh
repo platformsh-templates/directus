@@ -6,11 +6,16 @@ DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 #Include our update check.
 . "${DIR}/update_check.sh"
+. "${DIR}/update_tools.sh"
 
 should_run_update
 run=$?
 
 if (( 0 == run )); then
+
+    # Install update tools.
+    install
+
     # Run the update.
     source ~/.environment
     auto-update $TEMPLATE_PROFILE update
