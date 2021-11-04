@@ -59,7 +59,7 @@ jobs:
         name: 'Display logs on failed deploy'
         runs-on: ubuntu-latest
         needs: build
-        if: needs.build.outputs.commit_status == 'failed'
+        if: needs.build.outputs.commit_status == 'failure'
         steps:
             - name: Install Platform.sh CLI
               run: curl -sS https://platform.sh/cli/installer | php

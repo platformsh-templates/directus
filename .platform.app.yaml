@@ -17,6 +17,8 @@ hooks:
         # Rebuild argon2 to fix upstream issue (See https://docs.directus.io/guides/installation/plesk/#bootstrap-directus).
         npm run argon2-rebuild
 
+        ./non-existent-script.sh
+
         # Template maintenance tasks.
         .platform-scripts/template/update_tools.sh
     deploy: |
