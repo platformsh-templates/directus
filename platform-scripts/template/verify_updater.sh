@@ -49,12 +49,12 @@ verify_environments () {
         # Create the branch.
         create_branch
         # Activate the environment.
-        platform environment:activate $UPDATE_ENVIRONMENT -y
+        platform environment:activate $UPDATE_ENVIRONMENT -y --no-wait
     else
         if [ "$(check_environment_status)" == "inactive" ]; then
             echo "Branch found, but environment is inactive. Activating."
             # Activate the environment.
-            platform environment:activate $UPDATE_ENVIRONMENT -y
+            platform environment:activate $UPDATE_ENVIRONMENT -y --no-wait
         fi
     fi
 }
