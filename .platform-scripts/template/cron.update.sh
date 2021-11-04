@@ -5,7 +5,7 @@ DIR="${BASH_SOURCE%/*}"
 #if BASH_SOURCE didn't return what we want, try PWD
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 #Include our update check.
-. "${DIR}/.platform-scripts/template/update_check.sh"
+. "${DIR}/update_check.sh"
 
 should_run_update
 run=$?
