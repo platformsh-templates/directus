@@ -67,8 +67,11 @@ crons:
     # Auto-update environment verification.
     verify_envs:
         # spec: '51 2 * * *' # Create environment just before update.
-        spec: '0 11 * * *' # Create environment just before update.
-        cmd: .platform-scripts/template/verify_updater.sh
+        spec: '10 11 * * *' # Create environment just before update.
+        cmd: |
+            if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
+                .platform-scripts/template/verify_updater.sh
+            fi
     # Auto-update cron job.
     update:
         spec: '0 3 * * *' # Update template.
