@@ -8,6 +8,7 @@ dependencies:
 
 variables:
     env:
+        UPDATE_ENVIRONMENT: update
         TEMPLATE_PROFILE: directus
 
 hooks:
@@ -17,7 +18,7 @@ hooks:
         npm run argon2-rebuild
 
         # Template maintenance tasks.
-        .platform-scripts/template/verify_updater.sh
+        .platform-scripts/template/update_tools.sh
     deploy: |
         set -e
         # Installs the database and sets up the initial admin user. Only run on first deploy.
@@ -59,7 +60,7 @@ mounts:
 source:
     operations:
         platform_update_dependencies:
-            command: .platform-scripts/template/operation.update_template.sh
+            command: .platform-scripts/template/update_operation.sh
 
 timezone: "America/New_York"
 
@@ -67,10 +68,7 @@ crons:
     # Auto-update environment verification.
     verify_envs:
         spec: '45 2 * * *' # Create environment just before update.
-        cmd: |
-            if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
-                .platform-scripts/template/verify_updater.sh
-            fi
+        cmd: .platform-scripts/template/verify_environments.sh
     # Auto-update cron job.
     update:
         spec: '0 3 * * *' # Update template.
