@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 TEMPLATE_NAMESPACE=platformsh-templates
-UPDATE_ENVIRONMENT=update
 
 # The GitHub side.
 check_branch_exists () {
@@ -35,12 +34,6 @@ check_environment_status () {
     echo $UPDATE_ENVIRONMENT_STATUS
 }
 
-verify_project_is_official_template () {
-    source ~/.environment
-    USERS=$(platform project:curl access | jq -c 'map(select(."_embedded".users[0].email | contains("devrel@internal.platform.sh")))')
-    echo $USERS | jq -r 'length'
-}
-
 # Verify template project can receive updates.
 verify_environments () {
     source ~/.environment
@@ -61,40 +54,19 @@ verify_environments () {
     fi
 }
 
-install_update_tools () {
-    # Prepare the auto-update tools.
-    pip3 install setuptools
-    pip3 install wheel
-    pip3 install git+https://github.com/platformsh/template-builder.git#egg=template-builder
-    auto-update platform install_cli
-    source ~/.environment
-}
+#found out where we are so we can include other files
+DIR="${BASH_SOURCE%/*}"
+#if BASH_SOURCE didn't return what we want, try PWD
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+#Include our update check.
+. "${DIR}/update_check.sh"
 
-# Main.
-verify () {
-    if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
-        echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
-    else 
-        # Prepare the auto-update tools, but only in build.
-        if [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then 
-            echo "Not in build. Skipping installation."
-        else
-            install_update_tools
-        fi
+should_run_update
+run=$?
 
-        # Verify official template project.
-        STATUS=$(verify_project_is_official_template)
-        if [ "$STATUS" = 0 ]; then
-            echo "Skipping template maintenance."
-            echo "See the instructions for adding automatic updates to your project:"
-            echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
-        else
-            # Verify update environment exists, but only on cron.
-            if [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then 
-                verify_environments
-            fi
-        fi
+if (( 0 == run )); then
+    # Verify update environment exists, but only on production cron.
+    if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ] && [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then
+        verify_environments
     fi
-}
-
-verify
+fi

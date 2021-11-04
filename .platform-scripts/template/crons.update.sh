@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
-if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
-    echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping cron."; 
-else 
-    if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
-        # Verify project.
-        USERS=$(platform project:curl access | jq -c 'map(select(."_embedded".users[0].email | contains("devrel@internal.platform.sh")))')
-        MATCH_USERS=$(echo $USERS | jq -r 'length')
-        if [ "$MATCH_USERS" = 0 ]; then
-            echo "Skipping template maintenance."
-            echo "See the instructions for adding automatic updates to your project:"
-            echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
-        else
-            # Update the template.
-            timeout 1800 auto-update $TEMPLATE_PROFILE trigger_update_dependencies
-        fi
-    fi;
+#found out where we are so we can include other files
+DIR="${BASH_SOURCE%/*}"
+#if BASH_SOURCE didn't return what we want, try PWD
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+#Include our update check.
+. "${DIR}/update_check.sh"
+
+should_run_update
+run=$?
+
+if (( 0 == run )); then
+    # Update the template.
+    if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ] && [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then
+       timeout 1800 auto-update $TEMPLATE_PROFILE trigger_update_dependencies
+    fi
 fi
