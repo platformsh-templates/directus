@@ -65,7 +65,7 @@ timezone: "America/New_York"
 
 crons:
     # Auto-update environment verification.
-    update:
+    verify_envs:
         # spec: '51 2 * * *' # Create environment just before update.
         spec: '0 11 * * *' # Create environment just before update.
         cmd: .platform-scripts/template/verify_updater.sh
