@@ -75,8 +75,10 @@ verify () {
     if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
         echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
     else 
-        # Prepare the auto-update tools.
-        install_update_tools
+        # Prepare the auto-update tools, but only in build.
+        if [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then 
+            install_update_tools
+        fi
 
         # Verify official template project.
         STATUS=$(verify_project_is_official_template)
