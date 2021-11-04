@@ -55,6 +55,8 @@ verify_environments () {
             echo "Branch found, but environment is inactive. Activating."
             # Activate the environment.
             platform environment:activate $UPDATE_ENVIRONMENT -y --no-wait
+        else
+            echo "Update branch and environment OK."
         fi
     fi
 }
