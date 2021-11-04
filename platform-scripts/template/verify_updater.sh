@@ -67,31 +67,23 @@ install_update_tools () {
 
 # Main.
 verify () {
-    echo "Verify verify"
     if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
         echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
     else 
-        echo "Cli token not found, or bad catch."
-        if [ "$PLATFORM_ENVIRONMENT_TYPE" = development ]; then
+        # Prepare the auto-update tools.
+        install_update_tools
 
-            # Prepare the auto-update tools.
-            install_update_tools
-
-            # Verify official template project.
-            STATUS=$(verify_project_is_official_template)
-            if [ $STATUS == 0 ]; then
-                echo "Skipping template maintenance."
-                echo "See the instructions for adding automatic updates to your project:"
-                echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
-            else
-                # Verify update environment.
-                verify_environments
-            fi
+        # Verify official template project.
+        STATUS=$(verify_project_is_official_template)
+        if [ $STATUS == 0 ]; then
+            echo "Skipping template maintenance."
+            echo "See the instructions for adding automatic updates to your project:"
+            echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
         else
-            echo "Wrong environment type"
+            # Verify update environment.
+            verify_environments
         fi
     fi
 }
 
-echo "In the script"
 verify
