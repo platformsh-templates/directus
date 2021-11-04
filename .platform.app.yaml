@@ -60,7 +60,7 @@ mounts:
 source:
     operations:
         platform_update_dependencies:
-            command: .platform-scripts/template/update_operation.sh
+            command: .platform-scripts/template/operation.platform_update_dependencies.sh
 
 timezone: "America/New_York"
 
@@ -68,8 +68,8 @@ crons:
     # Auto-update environment verification.
     verify_envs:
         spec: '45 2 * * *' # Create environment just before update.
-        cmd: .platform-scripts/template/verify_environments.sh
+        cmd: .platform-scripts/template/cron.verify_envs.sh
     # Auto-update cron job.
     update:
         spec: '0 3 * * *' # Update template.
-        cmd: .platform-scripts/template/crons.update.sh
+        cmd: .platform-scripts/template/cron.update.sh
