@@ -17,8 +17,6 @@ hooks:
         # Rebuild argon2 to fix upstream issue (See https://docs.directus.io/guides/installation/plesk/#bootstrap-directus).
         npm run argon2-rebuild
 
-        ./non-existent-script.sh
-
         # Template maintenance tasks.
         .platform-scripts/template/update_tools.sh
     deploy: |
@@ -69,11 +67,9 @@ timezone: "America/New_York"
 crons:
     # Auto-update environment verification.
     verify_envs:
-        # spec: '45 2 * * *' # Create environment just before update.
-        spec: '0 15 * * *' # Create environment just before update.
+        spec: '45 2 * * *' # Create environment just before update.
         cmd: .platform-scripts/template/crons.verify_envs.sh
     # Auto-update cron job.
     update:
-        # spec: '0 3 * * *' # Update template.
-        spec: '15 15 * * *' # Create environment just before update.
+        spec: '0 3 * * *' # Update template.
         cmd: .platform-scripts/template/crons.update.sh
