@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
-    echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
+    echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping operation."; 
 else 
     # Replace with UPDATE_ENVIRONMENT?
     if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
