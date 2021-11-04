@@ -89,8 +89,10 @@ verify () {
             echo "See the instructions for adding automatic updates to your project:"
             echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
         else
-            # Verify update environment.
-            verify_environments
+            # Verify update environment exists, but only on cron.
+            if [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then 
+                verify_environments
+            fi
         fi
     fi
 }
