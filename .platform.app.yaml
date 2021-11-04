@@ -61,10 +61,18 @@ source:
         platform_update_dependencies:
             command: .platform-scripts/template/operation.update_template.sh
 
-timezone: "Europe/Paris" # Change this to your timezone https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: "America/New_York"
 
-# Auto-update cron job
 crons:
+    # Auto-update environment verification.
+    verify_envs:
+        # spec: '51 2 * * *' # Create environment just before update.
+        spec: '10 11 * * *' # Create environment just before update.
+        cmd: |
+            if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
+                .platform-scripts/template/verify_updater.sh
+            fi
+    # Auto-update cron job.
     update:
-        spec: '0 3 * * *' # update in the middle of the night
+        spec: '0 3 * * *' # Update template.
         cmd: .platform-scripts/template/crons.update.sh
