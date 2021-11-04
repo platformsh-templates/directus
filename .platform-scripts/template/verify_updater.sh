@@ -23,7 +23,7 @@ create_branch () {
                 --arg ref "$UPDATE_BRANCH_REF" \
                 --arg sha "$DEFAULT_BRANCH_SHA" \
                 '{ref: $ref, sha: $sha}' )
-    curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/json" \
+    curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/json" \
         -d "$DATA" \
         https://api.github.com/repos/$TEMPLATE_NAMESPACE/$TEMPLATE_PROFILE/git/refs
     sleep 5
@@ -36,23 +36,27 @@ check_environment_status () {
 }
 
 verify_project_is_official_template () {
+    source ~/.environment
     USERS=$(platform project:curl access | jq -c 'map(select(."_embedded".users[0].email | contains("devrel@internal.platform.sh")))')
     echo $USERS | jq -r 'length'
 }
 
 # Verify template project can receive updates.
 verify_environments () {
+    source ~/.environment
     if [ "$(check_branch_exists)" == "Branch not found" ]; then
         echo "Branch not found. Creating."
         # Create the branch.
         create_branch
         # Activate the environment.
-        platform environment:activate $UPDATE_ENVIRONMENT -y
+        platform environment:activate $UPDATE_ENVIRONMENT -y --no-wait
     else
         if [ "$(check_environment_status)" == "inactive" ]; then
             echo "Branch found, but environment is inactive. Activating."
             # Activate the environment.
-            platform environment:activate $UPDATE_ENVIRONMENT -y
+            platform environment:activate $UPDATE_ENVIRONMENT -y --no-wait
+        else
+            echo "Update branch and environment OK."
         fi
     fi
 }
@@ -63,6 +67,7 @@ install_update_tools () {
     pip3 install wheel
     pip3 install git+https://github.com/platformsh/template-builder.git#egg=template-builder
     auto-update platform install_cli
+    source ~/.environment
 }
 
 # Main.
@@ -70,21 +75,18 @@ verify () {
     if [ -z ${PLATFORMSH_CLI_TOKEN+x} ]; then 
         echo "PLATFORMSH_CLI_TOKEN is undefined. Skipping installation."; 
     else 
-        if [ "$PLATFORM_ENVIRONMENT_TYPE" = production ]; then
+        # Prepare the auto-update tools.
+        install_update_tools
 
-            # Prepare the auto-update tools.
-            install_update_tools
-
-            # Verify official template project.
-            STATUS=$(verify_project_is_official_template)
-            if [ $STATUS == 0 ]; then
-                echo "Skipping template maintenance."
-                echo "See the instructions for adding automatic updates to your project:"
-                echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
-            else
-                # Verify update environment.
-                verify_environments
-            fi
+        # Verify official template project.
+        STATUS=$(verify_project_is_official_template)
+        if [ "$STATUS" = 0 ]; then
+            echo "Skipping template maintenance."
+            echo "See the instructions for adding automatic updates to your project:"
+            echo "  -> https://community.platform.sh/t/fully-automated-dependency-updates-with-source-operations/801"
+        else
+            # Verify update environment.
+            verify_environments
         fi
     fi
 }
