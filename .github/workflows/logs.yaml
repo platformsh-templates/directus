@@ -1,0 +1,81 @@
+---
+# Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
+name: Post-deployment tests
+
+on:
+  push:
+    branches-ignore:
+      - 'master'
+
+env:
+    PLATFORMSH_CLI_TOKEN: ${{ secrets.TEMPLATES_CLI_TOKEN }}
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        name: 'Get environment URL'
+        outputs:
+            commit_status: ${{ steps.status.outputs.env_status }}
+            env_url: ${{ steps.url.outputs.env_url }}  
+            integration_status: ${{ steps.wait.outputs.integration }}  
+        steps: 
+            - uses: actions/checkout@v2
+            - name: 'Await deployment'
+              id: wait
+              run: |
+                COMMIT_STATUS="pending"
+                sleep 10
+                STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
+                if [ $STATUSES == 0 ]; then
+                    echo "Not on a Platform.sh integrated environment. Skipping."
+                    echo "::set-output name=integration::none"
+                else
+                    until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
+                      sleep 30
+                      ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                      COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                      
+                      echo "Waiting for Platform.sh environment to deploy ...."
+                      echo "  - $GITHUB_SHA"
+                      echo "  - $COMMIT_STATUS"
+                      echo "  - $ENV_URL"
+                    done
+                    echo "Environment deployed. Finished."
+                    echo "::set-output name=integration::platformsh"
+                fi
+            - name: 'Pass status'
+              id: status
+              if: steps.wait.outputs.integration == 'platformsh'
+              run: |
+                COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                echo "::set-output name=env_status::$COMMIT_STATUS"
+            - name: 'Pass URL'
+              id: url
+              if: steps.wait.outputs.integration == 'platformsh'
+              run: |
+                ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                echo "::set-output name=env_url::$ENV_URL"
+    displaylogs:
+        name: 'Display logs on failed deploy'
+        runs-on: ubuntu-latest
+        needs: build
+        if: needs.build.outputs.commit_status == 'failed'
+        steps:
+            - name: Install Platform.sh CLI
+              run: curl -sS https://platform.sh/cli/installer | php
+            - name: 'Retreive logs'
+              run: |    
+                  echo "${{ needs.build.outputs.env_url }}"
+                  ENV_URL=http://pr-32-efmpyay-o3fc5w4n5iumy.eu-3.platformsh.site/
+
+                  IFS='-' read -ra my_array <<< "$ENV_URL"
+                  ENVIRONMENT="pr-${my_array[1]}"
+                  IFS="." read -ra my_array <<< "${my_array[3]}"
+                  PROJECT="${my_array[0]}"
+
+                  ACTIVITY=$(platform project:curl -p $PROJECT /environments/master/activities | jq -r '.[0].id')
+
+                  echo "      * PROJECT:     $PROJECT"
+                  echo "      * ENVIRONMENT: $ENVIRONMENT"
+                  echo "      * ACTIVITY:    $ACTIVITY"
+                  echo "      * LOGS:        https://console.platform.sh/projects/$PROJECT/$ENVIRONMENT/log/$ACTIVITY"

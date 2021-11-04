@@ -1,0 +1,16 @@
+---
+# Retrieving a Platform.sh development environment shareable activity.
+# name: Get current activity
+
+# on:
+#   push:
+#     branches-ignore:
+#       - 'master'
+
+# PROJECT_ID
+#
+# ACTIVITY_ID
+# platform project:curl /environments/pr-20/activities | jq -r '.[0].id' gets the activity id
+# PR #
+# 
+# target_url --> https://console.platform.sh/projects/PROJECTID/pr-XX/log/ACTIVITY_ID
