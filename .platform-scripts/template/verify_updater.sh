@@ -77,6 +77,8 @@ verify () {
     else 
         # Prepare the auto-update tools, but only in build.
         if [ -z ${PLATFORM_OUTPUT_DIR+x} ]; then 
+            echo "Not in build. Skipping installation."
+        else
             install_update_tools
         fi
 
