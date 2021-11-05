@@ -69,7 +69,7 @@ jobs:
                   source ~/.bashrc
                   export PLATFORMSH_CLI_NO_INTERACTION=1
                   export PLATFORMSH_CLI_UPDATES_CHECK=0
-
+                  ls -a
                   # Get data.
                   IFS='-' read -ra my_array <<< "${{ needs.build.outputs.env_url }}"
                   ENVIRONMENT="pr-${my_array[1]}"
