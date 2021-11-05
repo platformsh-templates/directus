@@ -66,21 +66,13 @@ jobs:
                   # Install Platform.sh CLI
                   curl -sS https://platform.sh/cli/installer | php
 
-                  # source ~/.bashrc
-                  # export PLATFORMSH_CLI_NO_INTERACTION=1
-                  # export PLATFORMSH_CLI_UPDATES_CHECK=0
-
-                  echo "Give it a try"
-                  ~/.platformsh/bin/platform list
-                  echo "End of test"
-
                   # Get data.
                   IFS='-' read -ra my_array <<< "${{ needs.build.outputs.env_url }}"
                   ENVIRONMENT="pr-${my_array[1]}"
                   IFS="." read -ra my_array <<< "${my_array[3]}"
                   PROJECT="${my_array[0]}"
 
-                  ACTIVITY=$(platform project:curl -p $PROJECT /environments/$ENVIRONMENT/activities | jq -r '.[0].id')
+                  ACTIVITY=$(~/.platformsh/bin/platform project:curl -p $PROJECT /environments/$ENVIRONMENT/activities | jq -r '.[0].id')
 
                   echo "      * PROJECT:     $PROJECT"
                   echo "      * ENVIRONMENT: $ENVIRONMENT"
