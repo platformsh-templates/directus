@@ -24,6 +24,7 @@ jobs:
             - name: 'Await deployment'
               id: wait
               run: |
+                printenv
                 COMMIT_STATUS="pending"
                 sleep 10
                 STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
