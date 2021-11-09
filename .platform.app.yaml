@@ -61,6 +61,13 @@ source:
     operations:
         platform_update_dependencies:
             command: .platform-scripts/template/operations.platform_update_dependencies.sh
+        update:
+            command: |
+                # Run the update
+                npm update
+                # Stage and commit updates.
+                git add .
+                git commit -m "auto-update" --allow-empty
 
 timezone: "America/New_York"
 
