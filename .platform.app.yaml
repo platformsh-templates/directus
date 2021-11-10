@@ -61,6 +61,11 @@ source:
     operations:
         platform_update_dependencies:
             command: .platform-scripts/template/operations.platform_update_dependencies.sh
+        update:
+            command: |
+                npm update
+                git add .
+                git commit -m "Source operation update" --allow-empty
 
 timezone: "America/New_York"
 
