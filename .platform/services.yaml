@@ -1,15 +1,14 @@
-# PostgreSQL database service.
-db:
+# The services of the project.
+#
+# Each service listed will be deployed
+# to power your Platform.sh project.
+
+dbpostgres:
     type: postgresql:12
     disk: 256
-# Alternative database options
-# MySQL/MariaDB database service.
-# db:
-#     type: mariadb:10.5
-#     disk: 256
-# Redis caching service.
+
 cacheredis:
     type: redis:6.0
-# Redis rate-limiting service.
+
 ratelimitredis:
     type: redis:6.0
