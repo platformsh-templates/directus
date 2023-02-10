@@ -1,25 +1,16 @@
 {
-  "name": "directus-platformsh",
+  "name": "platformsh-directus",
   "version": "1.0.0",
-  "description": "A Directus starter project for Platform.sh",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "argon2-rebuild": "npm rebuild argon2 --build-from-source",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/platformsh-templates/directus.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/platformsh-templates/directus/issues"
-  },
-  "homepage": "https://github.com/platformsh-templates/directus#readme",
+  "license": "MIT",
   "dependencies": {
-    "directus": "^9.0.0-rc.98",
-    "pg": "^8.7.1"
+    "directus": "^9.14.1",
+    "pg": "^8.9.0"
   }
 }
