@@ -1,0 +1,159 @@
+---
+# Retrieving a Platform.sh development environment URL, which is then used to run subsquent workflows.
+name: Post-deployment tests
+
+on:
+  push:
+    branches-ignore:
+      - 'master'
+
+env:
+    ACC_MIN: 0.50
+    BPR_MIN: 0.50
+    PRF_MIN: 0.50
+    SEO_MIN: 0.50
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        name: 'Get environment URL'
+        outputs:
+            commit_status: ${{ steps.status.outputs.env_status }}
+            env_url: ${{ steps.url.outputs.env_url }}  
+            integration_status: ${{ steps.wait.outputs.integration }}  
+        steps: 
+            - uses: actions/checkout@v2
+            - name: 'Await deployment'
+              id: wait
+              run: |
+                COMMIT_STATUS="pending"
+                sleep 10
+                STATUSES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r 'length')
+                if [ $STATUSES == 0 ]; then
+                    echo "Not on a Platform.sh integrated environment. Skipping."
+                    echo "::set-output name=integration::none"
+                else
+                    until [ "$COMMIT_STATUS" == "success" ] || [ "$COMMIT_STATUS" == "failure" ]; do
+                      sleep 10
+                      ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                      COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                      
+                      echo "Waiting for Platform.sh environment to deploy ...."
+                      echo "  - $GITHUB_SHA"
+                      echo "  - $COMMIT_STATUS"
+                      echo "  - $ENV_URL"
+                    done
+                    echo "Environment deployed. Finished."
+                    echo "::set-output name=integration::platformsh"
+                fi
+            - name: 'Pass status'
+              id: status
+              if: steps.wait.outputs.integration == 'platformsh'
+              run: |
+                COMMIT_STATUS=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].state')
+                echo "::set-output name=env_status::$COMMIT_STATUS"
+            - name: 'Pass URL'
+              id: url
+              if: steps.wait.outputs.integration == 'platformsh'
+              run: |
+                ENV_URL=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA  | jq -r '.[0].target_url')
+                echo "::set-output name=env_url::$ENV_URL"
+    test:
+        name: 'Status tests'
+        runs-on: ubuntu-latest
+        needs: build
+        if: needs.build.outputs.integration_status == 'platformsh'
+        steps:
+            - name: 'Application should deploy successfully'
+              uses: lakuapik/gh-actions-http-status@v1
+              with:
+                sites: '["${{ needs.build.outputs.env_url }}"]'
+                expected: '[301]'
+    audit:
+        name: 'Lighthouse Audit'
+        runs-on: ubuntu-latest
+        needs: build
+        if: needs.build.outputs.integration_status == 'platformsh'
+        outputs:
+            audit_data: ${{ steps.report.outputs.report_data }}
+        steps:
+            - name: Audit live URL
+              uses: jakejarvis/lighthouse-action@master
+              with:
+                url: ${{ needs.build.outputs.env_url }}admin
+            - name: Upload results as an artifact
+              uses: actions/upload-artifact@master
+              with:
+                name: report
+                path: './report'
+            - name: Pass report data
+              id: report
+              run: |
+                  export REPORT=$(ls report | grep \.json$)
+                  echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  echo "::set-output name=report_data::$REPORT"
+            - name: Accessibility test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories.accessibility.score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.ACC_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.ACC_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.ACC_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
+            - name: Best practices test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories."best-practices".score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.BPR_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.BPR_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.BPR_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
+            # Redirects are causing a null measurement here, so pause on this for now.
+            # - name: Performance test
+            #   run: |
+            #       REPORT=$(ls report | grep \.json$)
+            #       SCORE=$(cat report/$REPORT | jq -r '.categories.performance.score')
+            #       if [ 1 -eq "$(echo "${SCORE} < ${{ env.PRF_MIN }}" | bc)" ]; then
+            #           echo "Threshold Failed:"
+            #           echo "  - Score:     $SCORE"
+            #           echo "  - Threshold: ${{ env.PRF_MIN }}"
+            #           echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            #           exit 1
+            #       else
+            #           echo "Passed:"
+            #           echo "  - Score:     $SCORE"
+            #           echo "  - Threshold: ${{ env.PRF_MIN }}"
+            #           echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            #       fi
+            - name: SEO test
+              run: |
+                  REPORT=$(ls report | grep \.json$)
+                  SCORE=$(cat report/$REPORT | jq -r '.categories.seo.score')
+                  if [ 1 -eq "$(echo "${SCORE} < ${{ env.SEO_MIN }}" | bc)" ]; then
+                      echo "Threshold Failed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.SEO_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                      exit 1
+                  else
+                      echo "Passed:"
+                      echo "  - Score:     $SCORE"
+                      echo "  - Threshold: ${{ env.SEO_MIN }}"
+                      echo "Download the full report under *Artifacts* at: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  fi
