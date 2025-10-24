@@ -1,11 +1,10 @@
-<br />
-<!-- Platform.sh logo left -->
-<p align="left">
-    <a href="https://platform.sh">
-        <img src="https://platform.sh/logos/redesign/Platformsh_logo_black.svg" width="150px">
-    </a>
-</p>
-<br /><br />
+> [!WARNING]
+> **This repository is no longer maintained by our internal teams.**  
+> The template is provided *as is* and will not receive updates, bug fixes, or new features.  
+> You are welcome to contribute on it or fork the repository and modify it for your own use.
+> To deploy this template on [Upsun](https://www.upsun.com), you can use the command [upsun project:convert](https://docs.upsun.com/administration/cli/reference.html#projectconvert)
+> on this codebase to convert the existing `.platform.app.yaml` configuration file to the [Upsun Flex format](https://docs.upsun.com/create-apps/app-reference/single-runtime-image.html).
+
 <!-- Template logo -->
 <p align="center">
     <a href="https://github.com/directus/directus">
@@ -47,14 +46,6 @@
 <p align="center">
     <strong><em>If you're unfamiliar with Platform.sh, be sure to checkout the <a href="#about-platformsh">About</a> section below.</em></strong>
 </p>
-<!-- Deploy on Platform.sh button -->
-<br />
-<p align="center">
-    <a href="https://console.platform.sh/projects/create-project?template=https://raw.githubusercontent.com/platformsh/template-builder/master/templates/metabase/.platform.template.yaml&utm_content=metabase&utm_source=github&utm_medium=button&utm_campaign=deploy_on_platform">
-        <img src="https://platform.sh/images/deploy/lg-blue.svg" alt="Deploy on Platform.sh" width="175px" />
-    </a>
-</p>
-<br/><br/>
 
 <!-- Main README -->
 
@@ -567,11 +558,12 @@ See something that's wrong with this template that needs to be fixed? Something 
 <h3 align="center"><strong>Need help?</strong></h3>
 <p align="center">
     <a href="https://community.platform.sh"><strong>Ask the Platform.sh Community</strong></a><br />
-    <a href="https://chat.platform.sh/"><strong>Join us on Slack</strong></a><br />
+    <a href="https://discord.gg/upsun"><strong>Join us on Discord</strong></a><br />
 </p>
 <br /><br />
 <h3 align="center"><strong>Thanks to all of our amazing contributors!</strong></h3>
 
 <br/>
-
+<p align="center">
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=platformsh-templates/directus)
+</p>
